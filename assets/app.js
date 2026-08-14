@@ -2328,6 +2328,7 @@ function renderSettingsPage() {
         <select class="form-select priority-select" onchange="updateItemFrequency('activities', ${idx}, this.value)">
           ${FREQUENCY_OPTIONS.map(f => `<option value="${f.value}" ${item.frequency === f.value ? 'selected' : ''}>${f.label}</option>`).join('')}
         </select>
+        <button class="btn-edit-config" onclick="openRenameItemModal('activities', ${idx})" title="Rename ${item.name}">✎</button>
         <button class="btn btn-delete-config" onclick="deleteConfigItem('activities', ${idx})" title="Delete ${item.name}">🗑️</button>
       </div>
     </div>
@@ -2343,6 +2344,7 @@ function renderSettingsPage() {
         <select class="form-select priority-select" onchange="updateItemFrequency('studies', ${idx}, this.value)">
           ${FREQUENCY_OPTIONS.map(f => `<option value="${f.value}" ${item.frequency === f.value ? 'selected' : ''}>${f.label}</option>`).join('')}
         </select>
+        <button class="btn-edit-config" onclick="openRenameItemModal('studies', ${idx})" title="Rename ${item.name}">✎</button>
         <button class="btn btn-delete-config" onclick="deleteConfigItem('studies', ${idx})" title="Delete ${item.name}">🗑️</button>
       </div>
     </div>
@@ -2354,7 +2356,7 @@ function renderSettingsPage() {
         <div class="card-title"><span class="icon">⚙️</span> Priority Configuration</div>
       </div>
       <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:20px">
-        Change the frequency/priority of any activity or study subject. For example, move Mathematics from Optional to Weekly when you're ready to make it mandatory.
+        Rename, re-prioritize, or remove any activity or study subject. Use ✎ to rename an item, the dropdown to change its frequency (e.g. move Mathematics from Optional to Weekly), or 🗑️ to delete it.
       </p>
       
       <div class="config-section">
@@ -2424,6 +2426,53 @@ function updateItemFrequency(category, index, newFrequency) {
   AppState.config[category][index].frequency = newFrequency;
   saveToLocalStorage();
   showToast(`Updated ${AppState.config[category][index].name} to ${FREQUENCY_META[newFrequency].label}`, 'success');
+}
+
+// --- Rename Activity/Study Item Modal ---
+function openRenameItemModal(category, index) {
+  const item = AppState.config[category][index];
+  if (!item) return;
+  const label = category === 'activities' ? 'Activity' : 'Study';
+  const html = `
+    <div class="modal-header">
+      <div class="modal-title">Rename ${label}</div>
+      <button class="modal-close" onclick="closeModal()">\u2715</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Name *</label>
+        <input type="text" class="form-input" id="rename-item-name" value="${escapeHtml(item.name)}" placeholder="Item name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Placeholder</label>
+        <input type="text" class="form-input" id="rename-item-placeholder" value="${escapeHtml(item.placeholder || '')}" placeholder="Detail hint">
+      </div>
+      <p class="ap-form-hint">The item's tracking history is preserved — this only changes the label shown across the app.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitRenameItem('${category}', ${index})">Save</button>
+    </div>
+  `;
+  openModal(html);
+}
+
+function submitRenameItem(category, index) {
+  const item = AppState.config[category][index];
+  if (!item) return;
+  const nameInput = document.getElementById('rename-item-name');
+  const placeholderInput = document.getElementById('rename-item-placeholder');
+  const name = nameInput.value.trim();
+  const placeholder = placeholderInput.value.trim();
+
+  if (!name) { showToast('Please enter a name', 'warning'); return; }
+
+  item.name = name;
+  item.placeholder = placeholder || item.placeholder;
+  saveToLocalStorage();
+  closeModal();
+  showToast(`Renamed to "${name}"`, 'success');
+  renderSettingsPage();
 }
 
 function addNewItem() {

@@ -1,0 +1,47 @@
+/* ============================================
+   ROUTINE v3.2 — FOOD TRACKER STYLES
+   Loaded after actionplan.css. Uses its tokens.
+   ============================================ */
+
+.ft-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin: 18px 0 16px; flex-wrap: wrap;
+}
+.ft-date-nav { display: flex; align-items: center; gap: 8px; }
+
+/* ---------- meal cards grid ---------- */
+.ft-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.ft-meal-card { display: flex; flex-direction: column; gap: 10px; }
+.ft-meal-head { display: flex; align-items: center; gap: 8px; }
+.ft-meal-icon { font-size: 1.15rem; line-height: 1; }
+.ft-meal-label { font-weight: 600; font-size: 0.92rem; color: var(--text-primary); flex: 1; }
+.ft-meal-badge {
+  font-size: 0.65rem; padding: 2px 8px; border-radius: 999px;
+  background: var(--accent-green-dim); color: var(--accent-green);
+  text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+}
+.ft-meal-badge-empty { background: var(--bg-tertiary); color: var(--text-muted); }
+
+.ft-meal-text { resize: vertical; min-height: 56px; font-size: 0.85rem; }
+.ft-meal-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ft-meal-time { width: 120px; flex: none; }
+.ft-meal-actions { display: flex; align-items: center; gap: 4px; }
+
+.ft-meal-card.ft-has-entry { border-color: var(--accent-green); }
+
+/* ---------- recent days list ---------- */
+.ft-history-list { display: flex; flex-direction: column; gap: 4px; }
+.ft-history-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  font-size: 0.8rem; color: var(--text-secondary);
+  transition: background 0.15s ease;
+}
+.ft-history-row:hover { background: var(--bg-tertiary); }
+.ft-history-row.active { background: var(--accent-primary-dim); color: var(--text-primary); }
+.ft-history-date { color: var(--text-primary); }
+.ft-history-count-empty { color: var(--text-muted); }

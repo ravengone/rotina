@@ -204,8 +204,14 @@ function loadFromLocalStorage() {
   }
 }
 
-function exportToJSON() {
-  const data = {
+// buildExportData() is the single source of truth for what goes into a backup.
+// Feature layers loaded after this file (features.js, actionplan.js, foodtracker.js,
+// and any future ones) each WRAP this function to add their own fields, the same
+// way importFromJSON is already extended below. This guarantees a field can never
+// be silently dropped just because of script load order or a future file forgetting
+// to copy a long list of fields by hand.
+function buildExportData() {
+  return {
     version: '2.0',
     exportDate: new Date().toISOString(),
     config: AppState.config,
@@ -220,6 +226,10 @@ function exportToJSON() {
     habits: AppState.habits,
     habitsLog: AppState.habitsLog,
   };
+}
+
+function exportToJSON() {
+  const data = buildExportData();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -229,6 +239,7 @@ function exportToJSON() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  try { if (typeof STORAGE_KEY_LAST_EXPORT !== 'undefined') localStorage.setItem(STORAGE_KEY_LAST_EXPORT, Date.now().toString()); } catch (e) {}
   showToast('Data exported successfully', 'success');
 }
 

@@ -39,37 +39,15 @@ window.saveToLocalStorage = function () {
   try { localStorage.setItem(STORAGE_KEY_JOURNAL, JSON.stringify(AppState.journal)); } catch (e) {}
 };
 
-// ========== PATCH: EXPORT (schema superset — old files import fine) ==========
-window.exportToJSON = function () {
-  const data = {
-    version: '3.0',
-    exportDate: new Date().toISOString(),
-    config: AppState.config,
-    history: AppState.history,
-    goals: AppState.goals,
-    objectives: AppState.objectives,
-    calendarEvents: AppState.calendarEvents,
-    trackers: AppState.trackers,
-    schedules: AppState.schedules,
-    pomodoroConfig: AppState.pomodoroConfig,
-    pomodoroHistory: AppState.pomodoroHistory,
-    habits: AppState.habits,
-    habitsLog: AppState.habitsLog,
-    // v3 additions (safely ignored by older versions)
-    journal: AppState.journal,
-    theme: document.documentElement.dataset.theme || 'dark',
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `life_dashboard.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  try { localStorage.setItem(STORAGE_KEY_LAST_EXPORT, Date.now().toString()); } catch (e) {}
-  showToast('Backup exported', 'success');
+// ========== PATCH: EXPORT (extends the shared data builder — never redefines the download logic) ==========
+const _featOrigBuildExportData = buildExportData;
+window.buildExportData = function () {
+  const data = _featOrigBuildExportData();
+  data.version = '3.0';
+  // v3 additions (safely ignored by older versions)
+  data.journal = AppState.journal;
+  data.theme = document.documentElement.dataset.theme || 'dark';
+  return data;
 };
 
 // ========== PATCH: IMPORT (accepts v2 and v3 files) ==========
